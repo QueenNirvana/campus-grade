@@ -84,3 +84,12 @@ npm run dev -- --host 127.0.0.1
 - `backend`: `mvn test` 通过，包含课程绩点规则覆盖、重叠、缺口和课程级计算测试。
 - `frontend`: `npm run build` 通过。
 - MySQL 脚本已提供；本机 root 密码未知时需要按实际密码导入。
+
+## 云服务器部署准备
+
+部署交接说明见：
+
+- `DEPLOYMENT_HANDOFF.md`
+- `deploy/`
+
+其中包含 Nginx 配置模板、systemd 服务模板、后端环境变量示例、数据库导入脚本和下一个会话需要确认的服务器信息清单。
