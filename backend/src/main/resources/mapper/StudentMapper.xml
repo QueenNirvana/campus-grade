@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campusgrade.mapper.StudentMapper">
+    <sql id="studentSelect">
+        SELECT s.*, c.class_name, u.username
+        FROM students s
+        JOIN classes c ON c.id = s.class_id
+        JOIN users u ON u.id = s.user_id
+    </sql>
+    <select id="findAll" resultType="com.example.campusgrade.entity.Student">
+        <include refid="studentSelect"/> ORDER BY s.id DESC
+    </select>
+    <select id="findById" resultType="com.example.campusgrade.entity.Student">
+        <include refid="studentSelect"/> WHERE s.id=#{id}
+    </select>
+    <select id="findByUserId" resultType="com.example.campusgrade.entity.Student">
+        <include refid="studentSelect"/> WHERE s.user_id=#{userId}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO students(user_id, class_id, student_no, name, gender, phone, email)
+        VALUES(#{userId}, #{classId}, #{studentNo}, #{name}, #{gender}, #{phone}, #{email})
+    </insert>
+    <update id="update">
+        UPDATE students SET user_id=#{userId}, class_id=#{classId}, student_no=#{studentNo}, name=#{name},
+        gender=#{gender}, phone=#{phone}, email=#{email} WHERE id=#{id}
+    </update>
+    <delete id="delete">
+        DELETE FROM students WHERE id=#{id}
+    </delete>
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM students
+    </select>
+</mapper>

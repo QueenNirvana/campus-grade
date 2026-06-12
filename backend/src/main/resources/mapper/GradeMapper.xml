@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campusgrade.mapper.GradeMapper">
+    <sql id="gradeSelect">
+        SELECT g.*, s.student_no, s.name AS student_name, cl.class_name, c.course_code, c.course_name,
+               c.credit, c.teacher_id, t.name AS teacher_name
+        FROM grades g
+        JOIN students s ON s.id = g.student_id
+        JOIN classes cl ON cl.id = s.class_id
+        JOIN courses c ON c.id = g.course_id
+        JOIN teachers t ON t.id = c.teacher_id
+    </sql>
+    <select id="findAll" resultType="com.example.campusgrade.entity.Grade">
+        <include refid="gradeSelect"/> ORDER BY g.id DESC
+    </select>
+    <select id="findByTeacherId" resultType="com.example.campusgrade.entity.Grade">
+        <include refid="gradeSelect"/> WHERE c.teacher_id=#{teacherId} ORDER BY g.id DESC
+    </select>
+    <select id="findByStudentId" resultType="com.example.campusgrade.entity.Grade">
+        <include refid="gradeSelect"/> WHERE g.student_id=#{studentId} ORDER BY c.course_name
+    </select>
+    <select id="findById" resultType="com.example.campusgrade.entity.Grade">
+        <include refid="gradeSelect"/> WHERE g.id=#{id}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO grades(student_id, course_id, usual_score, final_score, total_score, grade_point, remark)
+        VALUES(#{studentId}, #{courseId}, #{usualScore}, #{finalScore}, #{totalScore}, #{gradePoint}, #{remark})
+    </insert>
+    <update id="update">
+        UPDATE grades SET student_id=#{studentId}, course_id=#{courseId}, usual_score=#{usualScore},
+        final_score=#{finalScore}, total_score=#{totalScore}, grade_point=#{gradePoint}, remark=#{remark}
+        WHERE id=#{id}
+    </update>
+    <delete id="delete">
+        DELETE FROM grades WHERE id=#{id}
+    </delete>
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM grades
+    </select>
+    <select id="overview" resultType="com.example.campusgrade.dto.OverviewStats">
+        SELECT
+          (SELECT COUNT(*) FROM users) AS user_count,
+          (SELECT COUNT(*) FROM students) AS student_count,
+          (SELECT COUNT(*) FROM teachers) AS teacher_count,
+          (SELECT COUNT(*) FROM courses) AS course_count,
+          (SELECT COUNT(*) FROM grades) AS grade_count,
+          COALESCE(AVG(total_score), 0) AS average_score
+        FROM grades
+    </select>
+    <select id="courseStats" resultType="com.example.campusgrade.dto.CourseStats">
+        SELECT c.id AS course_id, c.course_name, COUNT(g.id) AS count,
+               COALESCE(AVG(g.total_score), 0) AS average_score,
+               COALESCE(MAX(g.total_score), 0) AS max_score,
+               COALESCE(MIN(g.total_score), 0) AS min_score,
+               COALESCE(SUM(CASE WHEN g.total_score >= 60 THEN 1 ELSE 0 END) / NULLIF(COUNT(g.id), 0) * 100, 0) AS pass_rate
+        FROM courses c
+        LEFT JOIN grades g ON g.course_id = c.id
+        WHERE c.id=#{courseId}
+        GROUP BY c.id, c.course_name
+    </select>
+    <select id="courseDistribution" resultType="map">
+        SELECT bucket, COUNT(*) AS count
+        FROM (
+          SELECT CASE
+            WHEN total_score &lt; 60 THEN '0-59'
+            WHEN total_score &lt; 70 THEN '60-69'
+            WHEN total_score &lt; 80 THEN '70-79'
+            WHEN total_score &lt; 90 THEN '80-89'
+            ELSE '90-100'
+          END AS bucket
+          FROM grades WHERE course_id=#{courseId}
+        ) x
+        GROUP BY bucket
+        ORDER BY bucket
+    </select>
+    <select id="studentSummary" resultType="com.example.campusgrade.dto.StudentSummary">
+        SELECT COUNT(g.id) AS course_count,
+               SUM(CASE WHEN g.total_score >= 60 THEN 1 ELSE 0 END) AS passed_count,
+               COALESCE(SUM(c.credit), 0) AS total_credit,
+               COALESCE(AVG(g.total_score), 0) AS average_score,
+               COALESCE(AVG(g.grade_point), 0) AS average_grade_point
+        FROM grades g
+        JOIN courses c ON c.id = g.course_id
+        WHERE g.student_id=#{studentId}
+    </select>
+</mapper>

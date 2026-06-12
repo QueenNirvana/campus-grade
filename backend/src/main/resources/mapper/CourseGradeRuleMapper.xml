@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campusgrade.mapper.CourseGradeRuleMapper">
+    <select id="findByCourseId" resultType="com.example.campusgrade.entity.CourseGradeRule">
+        SELECT * FROM course_grade_rules WHERE course_id=#{courseId} ORDER BY min_score
+    </select>
+    <delete id="deleteByCourseId">
+        DELETE FROM course_grade_rules WHERE course_id=#{courseId}
+    </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO course_grade_rules(course_id, min_score, max_score, grade_point, label)
+        VALUES(#{courseId}, #{minScore}, #{maxScore}, #{gradePoint}, #{label})
+    </insert>
+</mapper>

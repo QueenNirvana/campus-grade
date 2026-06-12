@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campusgrade.mapper.ClassMapper">
+    <select id="findAll" resultType="com.example.campusgrade.entity.ClassInfo">
+        SELECT * FROM classes ORDER BY id DESC
+    </select>
+    <select id="findById" resultType="com.example.campusgrade.entity.ClassInfo">
+        SELECT * FROM classes WHERE id=#{id}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO classes(class_name, grade_year, major) VALUES(#{className}, #{gradeYear}, #{major})
+    </insert>
+    <update id="update">
+        UPDATE classes SET class_name=#{className}, grade_year=#{gradeYear}, major=#{major} WHERE id=#{id}
+    </update>
+    <delete id="delete">
+        DELETE FROM classes WHERE id=#{id}
+    </delete>
+</mapper>

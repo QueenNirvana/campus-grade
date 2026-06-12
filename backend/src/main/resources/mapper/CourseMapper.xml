@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campusgrade.mapper.CourseMapper">
+    <sql id="courseSelect">
+        SELECT c.*, t.name AS teacher_name
+        FROM courses c
+        JOIN teachers t ON t.id = c.teacher_id
+    </sql>
+    <select id="findAll" resultType="com.example.campusgrade.entity.Course">
+        <include refid="courseSelect"/> ORDER BY c.id DESC
+    </select>
+    <select id="findByTeacherId" resultType="com.example.campusgrade.entity.Course">
+        <include refid="courseSelect"/> WHERE c.teacher_id=#{teacherId} ORDER BY c.id DESC
+    </select>
+    <select id="findById" resultType="com.example.campusgrade.entity.Course">
+        <include refid="courseSelect"/> WHERE c.id=#{id}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO courses(course_code, course_name, credit, teacher_id, semester)
+        VALUES(#{courseCode}, #{courseName}, #{credit}, #{teacherId}, #{semester})
+    </insert>
+    <update id="update">
+        UPDATE courses SET course_code=#{courseCode}, course_name=#{courseName}, credit=#{credit},
+        teacher_id=#{teacherId}, semester=#{semester} WHERE id=#{id}
+    </update>
+    <delete id="delete">
+        DELETE FROM courses WHERE id=#{id}
+    </delete>
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM courses
+    </select>
+</mapper>
