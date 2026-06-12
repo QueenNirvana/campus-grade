@@ -1,0 +1,9 @@
+.superpowers/
+backend/target/
+frontend/node_modules/
+frontend/dist/
+*.log
+*.tmp
+.idea/
+.vscode/
+uploads/
