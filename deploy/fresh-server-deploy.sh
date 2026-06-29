@@ -21,7 +21,12 @@ apt-get install -y ca-certificates curl git nginx maven
 
 if ! command -v java >/dev/null 2>&1 || ! java -version 2>&1 | awk -F[\".] '/version/ { exit ($2 >= 17 ? 0 : 1) }'; then
   echo "==> Installing JDK 17+"
-  apt-get install -y openjdk-21-jdk || apt-get install -y default-jdk || apt-get install -y openjdk-17-jdk
+  JDK_PACKAGE="$(apt-cache search '^openjdk-[0-9]+-jdk$' | awk '{print $1}' | sort -Vr | head -n 1)"
+  if [ -n "$JDK_PACKAGE" ]; then
+    apt-get install -y "$JDK_PACKAGE"
+  else
+    apt-get install -y default-jdk
+  fi
 fi
 
 if ! command -v mysql >/dev/null 2>&1; then
