@@ -50,7 +50,10 @@ echo "==> Fetching project code"
 if [ -d "$APP_DIR/.git" ]; then
   git -C "$APP_DIR" fetch --all --prune
   git -C "$APP_DIR" reset --hard origin/master
+elif [ -f "$APP_DIR/backend/pom.xml" ] && [ -f "$APP_DIR/frontend/package.json" ]; then
+  echo "Using existing project files in $APP_DIR"
 else
+  cd /
   rm -rf "$APP_DIR"
   git clone "$REPO_URL" "$APP_DIR"
 fi
