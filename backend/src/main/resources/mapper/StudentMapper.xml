@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.campusgrade.mapper.StudentMapper">
+    <!-- 学生基础查询片段：关联班级名称和登录用户名。 -->
     <sql id="studentSelect">
         SELECT s.*, c.class_name, u.username
         FROM students s
         JOIN classes c ON c.id = s.class_id
         JOIN users u ON u.id = s.user_id
     </sql>
+    <!-- 查询全部学生，最新档案排在前面。 -->
     <select id="findAll" resultType="com.example.campusgrade.entity.Student">
         <include refid="studentSelect"/> ORDER BY s.id DESC
     </select>
+    <!-- 按学生档案主键查询。 -->
     <select id="findById" resultType="com.example.campusgrade.entity.Student">
         <include refid="studentSelect"/> WHERE s.id=#{id}
     </select>
+    <!-- 根据登录账号主键找到对应学生档案，用于“我的信息”和数据权限。 -->
     <select id="findByUserId" resultType="com.example.campusgrade.entity.Student">
         <include refid="studentSelect"/> WHERE s.user_id=#{userId}
     </select>
+    <!-- 新增学生档案，并回填自增主键。 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO students(user_id, class_id, student_no, name, gender, phone, email)
         VALUES(#{userId}, #{classId}, #{studentNo}, #{name}, #{gender}, #{phone}, #{email})
     </insert>
+    <!-- 修改学生所属账号、班级和个人资料。 -->
     <update id="update">
         UPDATE students SET user_id=#{userId}, class_id=#{classId}, student_no=#{studentNo}, name=#{name},
         gender=#{gender}, phone=#{phone}, email=#{email} WHERE id=#{id}
     </update>
+    <!-- 按主键删除学生档案。 -->
     <delete id="delete">
         DELETE FROM students WHERE id=#{id}
     </delete>
+    <!-- 统计学生档案总数。 -->
     <select id="countAll" resultType="long">
         SELECT COUNT(*) FROM students
     </select>

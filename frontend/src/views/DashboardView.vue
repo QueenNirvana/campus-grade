@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="page-title">控制台</h1>
-    <p class="page-subtitle">围绕角色权限、课程级绩点规则和成绩统计的课程设计演示首页。</p>
+    <p class="page-subtitle">围绕角色权限、课程级成绩规则和成绩统计的课程设计演示首页。</p>
     <div class="stat-grid">
       <div class="stat-card" v-for="item in cards" :key="item.label">
         <div class="stat-label">{{ item.label }}</div>
@@ -10,7 +10,7 @@
     </div>
     <div class="content-panel">
       <h3>核心演示点</h3>
-      <el-alert title="绩点规则按课程配置：高等数学 85 分可为 3.7，Java 程序设计 85 分可为 3.3。" type="success" show-icon :closable="false" />
+      <el-alert title="成绩规则按课程配置：先按平时/期末占比计算总评，再按课程绩点区间换算绩点。" type="success" show-icon :closable="false" />
       <el-divider />
       <el-descriptions :column="3" border>
         <el-descriptions-item label="当前角色">{{ roleName }}</el-descriptions-item>

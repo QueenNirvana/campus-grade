@@ -54,6 +54,8 @@ CREATE TABLE courses (
   credit DECIMAL(4,1) NOT NULL,
   teacher_id BIGINT NOT NULL,
   semester VARCHAR(30) NOT NULL,
+  usual_weight DECIMAL(5,2) NOT NULL DEFAULT 30.00,
+  final_weight DECIMAL(5,2) NOT NULL DEFAULT 70.00,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_courses_teacher FOREIGN KEY (teacher_id) REFERENCES teachers(id)
 );

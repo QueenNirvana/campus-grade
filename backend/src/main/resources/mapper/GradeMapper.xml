@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.campusgrade.mapper.GradeMapper">
+    <!--
+      成绩明细的公共查询片段。
+      grades 只保存各表主键和分数，列表展示所需名称通过 JOIN 一次性查询。
+    -->
     <sql id="gradeSelect">
         SELECT g.*, s.student_no, s.name AS student_name, cl.class_name, c.course_code, c.course_name,
                c.credit, c.teacher_id, t.name AS teacher_name
@@ -10,33 +14,48 @@
         JOIN courses c ON c.id = g.course_id
         JOIN teachers t ON t.id = c.teacher_id
     </sql>
+    <!-- 管理员查询全部成绩。 -->
     <select id="findAll" resultType="com.example.campusgrade.entity.Grade">
         <include refid="gradeSelect"/> ORDER BY g.id DESC
     </select>
+    <!-- 教师只查询本人所授课程的成绩。 -->
     <select id="findByTeacherId" resultType="com.example.campusgrade.entity.Grade">
         <include refid="gradeSelect"/> WHERE c.teacher_id=#{teacherId} ORDER BY g.id DESC
     </select>
+    <!-- 学生只查询自己的成绩，并按课程名称排列。 -->
     <select id="findByStudentId" resultType="com.example.campusgrade.entity.Grade">
         <include refid="gradeSelect"/> WHERE g.student_id=#{studentId} ORDER BY c.course_name
     </select>
+    <!-- 按成绩主键查询完整记录。 -->
     <select id="findById" resultType="com.example.campusgrade.entity.Grade">
         <include refid="gradeSelect"/> WHERE g.id=#{id}
     </select>
+    <!--
+      新增成绩。totalScore 和 gradePoint 必须由 GradeService 计算后传入，
+      useGeneratedKeys 会把数据库生成的主键写回 grade.id。
+    -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO grades(student_id, course_id, usual_score, final_score, total_score, grade_point, remark)
         VALUES(#{studentId}, #{courseId}, #{usualScore}, #{finalScore}, #{totalScore}, #{gradePoint}, #{remark})
     </insert>
+    <!-- 修改成绩时也同时保存后端重新计算的总评和绩点。 -->
     <update id="update">
         UPDATE grades SET student_id=#{studentId}, course_id=#{courseId}, usual_score=#{usualScore},
         final_score=#{finalScore}, total_score=#{totalScore}, grade_point=#{gradePoint}, remark=#{remark}
         WHERE id=#{id}
     </update>
+    <!-- 按主键删除成绩。 -->
     <delete id="delete">
         DELETE FROM grades WHERE id=#{id}
     </delete>
+    <!-- 统计成绩记录总数。 -->
     <select id="countAll" resultType="long">
         SELECT COUNT(*) FROM grades
     </select>
+    <!--
+      管理员首页概览。子查询分别统计各业务表数量，
+      外层 AVG 计算全部成绩的平均总评，COALESCE 在无数据时返回 0。
+    -->
     <select id="overview" resultType="com.example.campusgrade.dto.OverviewStats">
         SELECT
           (SELECT COUNT(*) FROM users) AS user_count,
@@ -47,6 +66,10 @@
           COALESCE(AVG(total_score), 0) AS average_score
         FROM grades
     </select>
+    <!--
+      单门课程统计。LEFT JOIN 保证课程暂时没有成绩时仍返回一行；
+      NULLIF 避免成绩数为 0 时发生除零错误。
+    -->
     <select id="courseStats" resultType="com.example.campusgrade.dto.CourseStats">
         SELECT c.id AS course_id, c.course_name, COUNT(g.id) AS count,
                COALESCE(AVG(g.total_score), 0) AS average_score,
@@ -58,6 +81,10 @@
         WHERE c.id=#{courseId}
         GROUP BY c.id, c.course_name
     </select>
+    <!--
+      先用 CASE 把每条总评分入五个区间，再由外层查询统计每个区间的人数。
+      XML 中小于号必须写成 &lt;，否则会被误认为标签起始符。
+    -->
     <select id="courseDistribution" resultType="map">
         SELECT bucket, COUNT(*) AS count
         FROM (
@@ -73,6 +100,10 @@
         GROUP BY bucket
         ORDER BY bucket
     </select>
+    <!--
+      学生个人汇总：统计已有成绩的课程数、通过数、学分总和、
+      平均总评和平均绩点。课程是否通过按总评不低于 60 分判断。
+    -->
     <select id="studentSummary" resultType="com.example.campusgrade.dto.StudentSummary">
         SELECT COUNT(g.id) AS course_count,
                SUM(CASE WHEN g.total_score >= 60 THEN 1 ELSE 0 END) AS passed_count,

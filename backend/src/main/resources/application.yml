@@ -1,19 +1,30 @@
+# 内嵌 Tomcat 的监听端口，前端通过 http://localhost:8080 访问后端。
 server:
   port: 8080
 
+# Spring 管理的数据源配置。
 spring:
   datasource:
+    # MySQL 8 JDBC 驱动类。
     driver-class-name: com.mysql.cj.jdbc.Driver
+    # 优先读取 DB_URL 环境变量；未设置时使用冒号后的本地默认地址。
     url: ${DB_URL:jdbc:mysql://localhost:3306/campus_grade_management?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    # 数据库账号和密码同样可通过环境变量覆盖，便于不同电脑部署。
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
 
+# MyBatis 映射配置。
 mybatis:
+  # 扫描 resources/mapper 目录下的所有 XML SQL 文件。
   mapper-locations: classpath:mapper/*.xml
   configuration:
+    # 自动把数据库的 snake_case 列名映射为 Java camelCase 字段。
     map-underscore-to-camel-case: true
 
+# 项目自定义 JWT 配置，由 JwtTokenProvider 通过 @Value 读取。
 app:
   jwt:
+    # 演示项目的签名密钥；正式部署时应改为环境变量或安全配置。
     secret: campus-grade-management-demo-secret-key-2026
+    # 登录令牌签发后 12 小时过期。
     expiration-hours: 12

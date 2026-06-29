@@ -21,10 +21,10 @@ INSERT INTO students(id, user_id, class_id, student_no, name, gender, phone, ema
 (2, 5, 1, 'S2023002', '李四', '女', '13900000002', 'student02@example.edu.cn'),
 (3, 6, 2, 'S2023003', '王五', '男', '13900000003', 'student03@example.edu.cn');
 
-INSERT INTO courses(id, course_code, course_name, credit, teacher_id, semester) VALUES
-(1, 'MATH101', '高等数学', 4.0, 1, '2025-2026-1'),
-(2, 'JAVA201', 'Java 程序设计', 3.5, 2, '2025-2026-1'),
-(3, 'DB301', '数据库原理', 3.0, 1, '2025-2026-1');
+INSERT INTO courses(id, course_code, course_name, credit, teacher_id, semester, usual_weight, final_weight) VALUES
+(1, 'MATH101', '高等数学', 4.0, 1, '2025-2026-1', 30, 70),
+(2, 'JAVA201', 'Java 程序设计', 3.5, 2, '2025-2026-1', 40, 60),
+(3, 'DB301', '数据库原理', 3.0, 1, '2025-2026-1', 20, 80);
 
 INSERT INTO course_grade_rules(course_id, min_score, max_score, grade_point, label) VALUES
 (1, 0, 59.99, 0.0, '不及格'),
@@ -43,9 +43,9 @@ INSERT INTO course_grade_rules(course_id, min_score, max_score, grade_point, lab
 (3, 85, 100, 4.0, '优秀');
 
 INSERT INTO grades(student_id, course_id, usual_score, final_score, total_score, grade_point, remark) VALUES
-(1, 1, 88, 83, 85, 3.7, '同为 85 分，高等数学绩点为 3.7'),
-(1, 2, 90, 82, 85, 3.3, '同为 85 分，Java 程序设计绩点为 3.3'),
-(2, 1, 76, 81, 79, 3.0, '正常'),
-(2, 2, 82, 88, 86, 3.3, '正常'),
-(3, 1, 58, 64, 62, 2.0, '正常'),
-(3, 3, 92, 90, 91, 4.0, '正常');
+(1, 1, 85, 85, 85, 3.7, '高等数学 30% 平时 + 70% 期末，同为 85 分绩点为 3.7'),
+(1, 2, 85, 85, 85, 3.3, 'Java 程序设计 40% 平时 + 60% 期末，同为 85 分绩点为 3.3'),
+(2, 1, 76, 81, 79.50, 3.0, '正常'),
+(2, 2, 82, 88, 85.60, 3.3, '正常'),
+(3, 1, 58, 64, 62.20, 2.0, '正常'),
+(3, 3, 92, 90, 90.40, 4.0, '正常');

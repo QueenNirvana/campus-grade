@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.campusgrade.mapper.CourseGradeRuleMapper">
+    <!-- 查询某课程规则；按最低分排序后更便于前端显示和后端理解区间。 -->
     <select id="findByCourseId" resultType="com.example.campusgrade.entity.CourseGradeRule">
         SELECT * FROM course_grade_rules WHERE course_id=#{courseId} ORDER BY min_score
     </select>
+    <!-- 保存整套规则前先删除课程的旧规则。该操作在服务层事务中执行。 -->
     <delete id="deleteByCourseId">
         DELETE FROM course_grade_rules WHERE course_id=#{courseId}
     </delete>
+    <!-- 插入一个闭区间及其对应绩点和标签，并回填自增主键。 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO course_grade_rules(course_id, min_score, max_score, grade_point, label)
         VALUES(#{courseId}, #{minScore}, #{maxScore}, #{gradePoint}, #{label})

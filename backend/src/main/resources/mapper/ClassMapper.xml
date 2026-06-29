@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 必须填写对应 Mapper 接口的完整类名。 -->
 <mapper namespace="com.example.campusgrade.mapper.ClassMapper">
+    <!-- 查询班级列表，最新创建的记录排在前面。 -->
     <select id="findAll" resultType="com.example.campusgrade.entity.ClassInfo">
         SELECT * FROM classes ORDER BY id DESC
     </select>
+    <!-- #{id} 是 MyBatis 参数占位符，会使用预编译参数避免 SQL 注入。 -->
     <select id="findById" resultType="com.example.campusgrade.entity.ClassInfo">
         SELECT * FROM classes WHERE id=#{id}
     </select>
+    <!-- useGeneratedKeys 会把数据库生成的主键写回 item.id。 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO classes(class_name, grade_year, major) VALUES(#{className}, #{gradeYear}, #{major})
     </insert>
+    <!-- 按主键修改班级名称、年级和专业。 -->
     <update id="update">
         UPDATE classes SET class_name=#{className}, grade_year=#{gradeYear}, major=#{major} WHERE id=#{id}
     </update>
+    <!-- 按主键删除班级。 -->
     <delete id="delete">
         DELETE FROM classes WHERE id=#{id}
     </delete>

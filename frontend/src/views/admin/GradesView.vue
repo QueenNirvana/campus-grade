@@ -1,5 +1,5 @@
 <template>
-  <SimpleCrud title="成绩管理" subtitle="保存成绩时后端按课程绩点规则自动计算 gradePoint。" :api="api" :columns="columns" :fields="fields" />
+  <SimpleCrud title="成绩管理" subtitle="保存成绩时后端按课程占比自动计算总评，再按课程绩点规则计算绩点。" :api="api" :columns="columns" :fields="fields" />
 </template>
 <script setup>
 import SimpleCrud from '../../components/SimpleCrud.vue'
@@ -14,7 +14,6 @@ const fields = [
   { prop: 'studentId', label: '学生ID', type: 'number' }, { prop: 'courseId', label: '课程ID', type: 'number' },
   { prop: 'usualScore', label: '平时成绩', type: 'number', min: 0, max: 100 },
   { prop: 'finalScore', label: '期末成绩', type: 'number', min: 0, max: 100 },
-  { prop: 'totalScore', label: '总评成绩', type: 'number', min: 0, max: 100 },
   { prop: 'remark', label: '备注' }
 ]
 </script>

@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.campusgrade.mapper.UserMapper">
+    <!-- 查询全部登录账号，最新账号排在前面。 -->
     <select id="findAll" resultType="com.example.campusgrade.entity.User">
         SELECT * FROM users ORDER BY id DESC
     </select>
+    <!-- 按用户主键查询。 -->
     <select id="findById" resultType="com.example.campusgrade.entity.User">
         SELECT * FROM users WHERE id = #{id}
     </select>
+    <!-- 登录时按唯一用户名查询账号、密码哈希、角色和状态。 -->
     <select id="findByUsername" resultType="com.example.campusgrade.entity.User">
         SELECT * FROM users WHERE username = #{username}
     </select>
+    <!-- 新增账号，密码应在进入 Mapper 前由 UserService 完成加密。 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO users(username, password, real_name, role, status)
         VALUES(#{username}, #{password}, #{realName}, #{role}, #{status})
     </insert>
+    <!-- 动态更新账号：只有提交了非空密码时才修改 password 列。 -->
     <update id="update">
         UPDATE users
         SET username=#{username}, real_name=#{realName}, role=#{role}, status=#{status}
+        <!-- if 是 MyBatis 动态 SQL 标签，条件不成立时以下片段不会进入最终 SQL。 -->
         <if test="password != null and password != ''">, password=#{password}</if>
         WHERE id=#{id}
     </update>
+    <!-- 按主键删除账号。 -->
     <delete id="delete">
         DELETE FROM users WHERE id=#{id}
     </delete>
+    <!-- 统计账号总数。 -->
     <select id="countAll" resultType="long">
         SELECT COUNT(*) FROM users
     </select>

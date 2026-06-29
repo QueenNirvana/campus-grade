@@ -1,31 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.campusgrade.mapper.CourseMapper">
+    <!-- 可复用的课程查询片段，同时关联教师表取得 teacherName。 -->
     <sql id="courseSelect">
         SELECT c.*, t.name AS teacher_name
         FROM courses c
         JOIN teachers t ON t.id = c.teacher_id
     </sql>
+    <!-- 查询全部课程。include 会把上面的 courseSelect SQL 片段插入此处。 -->
     <select id="findAll" resultType="com.example.campusgrade.entity.Course">
         <include refid="courseSelect"/> ORDER BY c.id DESC
     </select>
+    <!-- 教师端只查询 teacher_id 与当前教师一致的课程。 -->
     <select id="findByTeacherId" resultType="com.example.campusgrade.entity.Course">
         <include refid="courseSelect"/> WHERE c.teacher_id=#{teacherId} ORDER BY c.id DESC
     </select>
+    <!-- 按课程主键查询单条记录。 -->
     <select id="findById" resultType="com.example.campusgrade.entity.Course">
         <include refid="courseSelect"/> WHERE c.id=#{id}
     </select>
+    <!-- 新增课程；未提供权重时分别使用 30% 和 70% 的演示默认值。 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO courses(course_code, course_name, credit, teacher_id, semester)
-        VALUES(#{courseCode}, #{courseName}, #{credit}, #{teacherId}, #{semester})
+        INSERT INTO courses(course_code, course_name, credit, teacher_id, semester, usual_weight, final_weight)
+        VALUES(#{courseCode}, #{courseName}, #{credit}, #{teacherId}, #{semester},
+               COALESCE(#{usualWeight}, 30), COALESCE(#{finalWeight}, 70))
     </insert>
+    <!-- 修改课程基础信息；权重为空时通过 COALESCE 保留数据库原值。 -->
     <update id="update">
         UPDATE courses SET course_code=#{courseCode}, course_name=#{courseName}, credit=#{credit},
-        teacher_id=#{teacherId}, semester=#{semester} WHERE id=#{id}
+        teacher_id=#{teacherId}, semester=#{semester},
+        usual_weight=COALESCE(#{usualWeight}, usual_weight),
+        final_weight=COALESCE(#{finalWeight}, final_weight)
+        WHERE id=#{id}
     </update>
+    <!-- 规则管理页面只更新两个权重，不影响课程其他字段。 -->
+    <update id="updateWeights">
+        UPDATE courses SET usual_weight=#{usualWeight}, final_weight=#{finalWeight} WHERE id=#{id}
+    </update>
+    <!-- 按主键删除课程。 -->
     <delete id="delete">
         DELETE FROM courses WHERE id=#{id}
     </delete>
+    <!-- 统计课程总数。 -->
     <select id="countAll" resultType="long">
         SELECT COUNT(*) FROM courses
     </select>
