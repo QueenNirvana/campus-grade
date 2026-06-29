@@ -19,7 +19,7 @@ echo "==> Installing system dependencies"
 apt-get update
 apt-get install -y ca-certificates curl git nginx maven
 
-if ! command -v java >/dev/null 2>&1 || ! java -version 2>&1 | awk -F[\".] '/version/ { exit ($2 >= 17 ? 0 : 1) }'; then
+if ! command -v javac >/dev/null 2>&1 || ! javac -version 2>&1 | awk '{ split($2, v, "."); major=(v[1] == "1" ? v[2] : v[1]); exit (major >= 17 ? 0 : 1) }'; then
   echo "==> Installing JDK 17+"
   JDK_PACKAGE="$(apt-cache search '^openjdk-[0-9]+-jdk$' | awk '{print $1}' | sort -Vr | head -n 1)"
   if [ -n "$JDK_PACKAGE" ]; then
